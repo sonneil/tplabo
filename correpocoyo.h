@@ -16,7 +16,7 @@ class CorrePocoyo{
 
 	/*
 	 * Crea una nueva carrera
-	 */	
+	 */
 	CorrePocoyo();
 
 	/*
@@ -131,7 +131,7 @@ class CorrePocoyo{
 	CorrePocoyo<T>& operator=(const CorrePocoyo<T>& otra) {
 		assert(false);
 		return *this;
-	}	
+	}
 
 	/*
 	 * Aca va la implementación del nodo.
