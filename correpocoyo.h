@@ -176,6 +176,14 @@ void CorrePocoyo<T>::CorrePocoyo(const CorrePocoyo<T>& cp) {
 }
 
 template<class T>
+void CorrePocoyo<T>::CorrePocoyo(){
+	this.tamanio=0;
+	this.prmCorredor=NULL;
+	this.filmando=NULL;
+}
+
+
+template<class T>
 void CorrePocoyo<T>::~CorrePocoyo() {
 	this->tamanio = 0;
 	if (cp != null) {
