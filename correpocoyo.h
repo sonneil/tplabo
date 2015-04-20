@@ -58,6 +58,9 @@ class CorrePocoyo{
 	struct Nodo {
 		Nodo* nextCorredor;
 		T currCorredor;
+		
+		
+		Nodo (const T& n) : nextCorredor(), currCorredor(n) { };
 	};
 	
 	int tamanioc;
@@ -73,24 +76,21 @@ ostream& operator<<(ostream& out, const CorrePocoyo<T>& a) {
 template<class T>
 CorrePocoyo<T>::CorrePocoyo(const CorrePocoyo<T>& cp) {
 	this->tamanioc = 0;
-	if (cp != NULL) {
+	if (cp.tamanio() != 0) {
 		if (cp.tamanioc > 0) {
-			this->tamanioc = cp.tamanioc;
-			this->prmCorredor = new Nodo;
+			this->tamanioc = cp.tamanio();
+			this->prmCorredor = new Nodo(cp.damePrimero());
 			// Guardo el primer corredor en un nodo auxiliar
-			Nodo* nAux = prmCorredor;
+			Nodo* nAux = this->prmCorredor;
 			// Copio todos los nodos de cp
 			for (int i = 0; i < cp.tamanio()-1; i++) {
-				this->prmCorredor->currCorredor = new T(cp.dameCorredorEnPos(i));
-				this->prmCorredor->nextCorredor = new Nodo;
+				this->prmCorredor = new Nodo(cp.dameCorredorEnPos(i));
 				this->prmCorredor = this->prmCorredor->nextCorredor;
-				this->tamanioc++;
 			}
 			// Copio el ultimo nodo de cp y dejo CorrePocoyo en su estado original
-			this->prmCorredor->currCorredor = new T(cp.dameCorredorEnPos(cp.tamanio()-1));
+			this->prmCorredor = new Nodo(cp.dameCorredorEnPos(cp.tamanio()-1));
 			this->prmCorredor->nextCorredor = nAux;
 			this->prmCorredor = this->prmCorredor->nextCorredor;
-			this->tamanioc++;
 		}
 	}
 }
@@ -102,40 +102,39 @@ CorrePocoyo<T>::CorrePocoyo(){
 	this->filmando=NULL;
 }
 
+// funciona
 template<class T>
 void CorrePocoyo<T>::nuevoCorredor(const T& nuevo){
-	Nodo* nuevoNodo = new Nodo;	
+	Nodo* nuevoNodo = new Nodo(nuevo);
 	if(this->tamanioc==0) {
-		nuevoNodo->currCorredor = new T(nuevo); // Boom
-		nuevoNodo->nextCorredor = nuevoNodo;
 		this->prmCorredor = nuevoNodo;
-		this->filmando=nuevoNodo;
+		this->filmando = nuevoNodo;
+		this->prmCorredor->nextCorredor = this->prmCorredor;
 	} else {
-		nuevoNodo->nextCorredor = this->prmCorredor;
-		nuevoNodo->currCorredor = new T(nuevo); // Boom
 		Nodo * actual=this->prmCorredor;
 		while((actual->nextCorredor->currCorredor)!=(this->prmCorredor->currCorredor)) {
 			actual=(actual->nextCorredor);
 		}
 		actual->nextCorredor = nuevoNodo;
+		nuevoNodo->nextCorredor = this->prmCorredor;
 	}
 	tamanioc++;
 }
 
 template<class T>
 CorrePocoyo<T>::~CorrePocoyo() {
-	this->tamanioc = 0;
 	if (this != NULL) {
 		if (this->tamanioc > 0) {
 			// Borro todos los nodos de cp
 			for (int i = 0; i < this->tamanio(); i++) {
-				Nodo* nAux = new Nodo;
-				nAux = this->prmCorredor->nextCorredor;
+				Nodo* nAux = this->prmCorredor;
+				this->prmCorredor = nAux->nextCorredor;
 				delete nAux;
 			}
 		
 		}
 	}
+	// TODO: Borrar tamanio?
 }
 
 template<class T>
@@ -147,9 +146,9 @@ void CorrePocoyo<T>::seCansa(const T& cansado) {
 	}
 	nBorrar = actual->nextCorredor;
 	if (this->filmando->currCorredor == nBorrar->currCorredor) {
-		this->filmando = actual->nextCorredor->nextCorredor;	
+		this->filmando = nBorrar->nextCorredor;	
 	}
-	actual->nextCorredor = actual->nextCorredor->nextCorredor;
+	actual->nextCorredor = nBorrar->nextCorredor;
 	this->tamanioc--;
 	delete nBorrar;
 }
@@ -191,9 +190,13 @@ ostream& CorrePocoyo<T>::mostrarCorrePocoyo(ostream& cout) const {
 		cout << "[]" << endl;
 	} else {
 		Nodo* actual = this->prmCorredor;
-		cout << "[" << endl;
+		cout << "[";
 		for (int i=0; i < this->tamanio(); i++) {
-			cout << "[" << actual->currCorredor << "]" << endl;
+			if (this->tamanio()-1 != i) {
+				cout << actual->currCorredor << "-" << actual->nextCorredor->currCorredor << ", ";
+			} else {
+				cout << actual->currCorredor << "-" << actual->nextCorredor->currCorredor;
+			}
 			actual = actual->nextCorredor;
 		}
 		cout << "]" << endl;
